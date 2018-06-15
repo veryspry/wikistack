@@ -12,11 +12,25 @@ app.use(bodyParser.urlencoded({extended: false}));
 // app.use(bodyParser);
 // app.use("/articles", require("./routes/articles"));
 
-const articlesRoutes = require('./routes/articles');
-app.use('/articles', articlesRoutes);
+// const articlesRoutes = require('./routes/articles');
+// app.use('/articles', articlesRoutes);
+
+const wiki = require('./routes/wiki');
+const users = require('./routes/users');
+
+function makeSlug(str) {
+  let regex = /[^A-Za-z0-9-]+/
+  str.replace(regex, '_');
+}
+
+makeSlug('hello you')
+
+app.use('/wiki', wiki)
+app.use('/users', users)
 
 app.get("/", (req, res) => {
-  res.redirect("/articles");
+  //  res.redirect("/wiki");
+  res.send('home page')
 })
 
 db.authenticate().then(() => {
