@@ -2,51 +2,35 @@ const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require('body-parser');
 const app = express();
-const { db } = require('./models');
+// const { db } = require('./models');
+const models = require('./models');
+// const server = http.createServer()
+const path = require('path');
+
 const PORT = 1337;
 
 
 app.use(morgan("dev"));
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, "./public"))); //serving up static files (e.g. css files)
+// app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({extended: false}));
-// app.use(bodyParser);
-// app.use("/articles", require("./routes/articles"));
+app.use(bodyParser.json());
 
-// const articlesRoutes = require('./routes/articles');
-// app.use('/articles', articlesRoutes);
 
-const wiki = require('./routes/wiki');
-const users = require('./routes/users');
+const wikiRouter = require('./routes/wiki');
+const usersRouter = require('./routes/users');
 
-function makeSlug(str) {
-  let regex = /[^A-Za-z0-9-]+/
-  str.replace(regex, '_');
-}
-
-makeSlug('hello you')
-
-app.use('/wiki', wiki)
-app.use('/users', users)
+app.use('/wiki', wikiRouter)
+app.use('/users', usersRouter)
 
 app.get("/", (req, res) => {
-  //  res.redirect("/wiki");
-  res.send('home page')
+   res.redirect("/wiki");
+  // res.send('home page')
 })
 
-db.authenticate().then(() => {
-  console.log('connected to the database');
-});
+// db.authenticate().then(() => {
+//   console.log('connected to the database');
+//   // console.log(models.Page, models.User, models.db);
+// });
 
-const init = async () => {
-  const dbPORT = 5432;
-  await db.sync({force : true});
-  app.listen(dbPORT, () => {
-    console.log(`Server is listening on port ${PORT}`)
-    });
-}
-
-init();
-
-app.listen(PORT, () => {
-  console.log(`App listening in port ${PORT}`);
-});
+module.exports = app;

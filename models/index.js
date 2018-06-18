@@ -4,23 +4,33 @@ const db = new Sequelize('postgres://localhost:5432/wikistack', {
 });
 
 
-
 const Page = db.define('page', {
   title: {
     type: Sequelize.STRING,
-    allowNull : false
+    allowNull: false
   },
   slug: {
     type: Sequelize.STRING,
-    allowNull : false,
-    //isURL : true
+    allowNull: false,
+    unique: true
   },
   content: {
     type: Sequelize.TEXT,
-    allowNull : false
+    allowNull: false
   },
   status: {
     type: Sequelize.ENUM('open', 'closed')
+  }
+});
+
+function generateSlug(title) {
+  return title.replace(/\s+/g, '_').replace(/\W/g, '');
+}
+
+Page.beforeValidate(page => {
+  // Generate slug
+  if (!page.slug) {
+    page.slug = page.title.replace(/\s/g, "_").replace(/\W/g, "").toLowerCase();
   }
 });
 
@@ -31,12 +41,12 @@ const User = db.define('user', {
   },
   email: {
     type: Sequelize.STRING,
-    allowNull : false,
-    validate: {isEmail: true}
+    isEmail: true,
+    allowNull : false
   }
 });
 
-module.exports = { Page, User };
-module.exports = {
-  db
-};
+Page.belongsTo(User, {as: 'author'});
+
+module.exports = { Page, User, db };
+// module.exports = { db };
